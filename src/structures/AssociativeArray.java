@@ -112,11 +112,14 @@ public class AssociativeArray<K, V> {
    */
   public V get(K key) throws KeyNotFoundException {
     for(KVPair<K, V> pair : this.pairs) {
+      if (key == null) {
+        throw new KeyNotFoundException();
+      }
       if(pair.key.equals(key)) {
         return pair.value;
       }
     }
-    return null;
+    throw new KeyNotFoundException();
   } // get(K)
 
   /**
@@ -137,17 +140,17 @@ public class AssociativeArray<K, V> {
    * to get(key) will throw an exception. If the key does not appear
    * in the associative array, does nothing.
    */
-  public void remove(K key) throws KeyNotFoundException {
+  public void remove(K key) {
     int i = 0;
     while(!(this.pairs[i].key.equals(key))) {
-      if(i > this.size) {
-        throw new KeyNotFoundException();
-      }
       i++;
+      if(i >= this.size) {
+        return;
+      }
     }
     this.pairs[i] = this.pairs[this.size - 1];
     this.pairs[this.size - 1] = null;
-    this.size--;
+    --this.size;
   } // remove(K)
 
   /**

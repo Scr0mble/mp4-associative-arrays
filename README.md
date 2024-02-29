@@ -1,8 +1,8 @@
 Associative Arrays
 ==================
 
-Starter code for a project on associative arrays.
+Authors: William Pitchford, Sam R
+Purpose: This project contains the base code for an implementation of Associative Arrays.
+Acknowledgements: Jackson Walsh; for excellent advising on how to implement some of the AssociativeArray file.
 
-_Students must replace the contents of this file with appropriate
-contents, including author and date._
 
