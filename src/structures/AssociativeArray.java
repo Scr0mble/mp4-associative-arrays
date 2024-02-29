@@ -142,15 +142,18 @@ public class AssociativeArray<K, V> {
    */
   public void remove(K key) {
     int i = 0;
-    while(!(this.pairs[i].key.equals(key))) {
-      i++;
-      if(i >= this.size) {
-        return;
+    if (this.size != 0) {
+      while(!(this.pairs[i].key.equals(key))) {
+        i++;
+        if(i >= this.size) {
+          return;
+        }
       }
+      this.pairs[i] = this.pairs[this.size - 1];
+      this.pairs[this.size - 1] = null;
+      --this.size;
     }
-    this.pairs[i] = this.pairs[this.size - 1];
-    this.pairs[this.size - 1] = null;
-    --this.size;
+    return;
   } // remove(K)
 
   /**
