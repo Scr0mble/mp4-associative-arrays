@@ -1,4 +1,4 @@
-package experiments;
+
 
 import java.io.PrintWriter;
 import structures.AssociativeArray;

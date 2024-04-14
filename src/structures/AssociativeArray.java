@@ -2,6 +2,8 @@ package structures;
 
 import static java.lang.reflect.Array.newInstance;
 
+// Changelog: added calls to find in a few of my methods to eliminate repeated code. Added code to handle null as key in set, get, and hasKey.
+
 /**
  * A basic implementation of Associative Arrays with keys of type K
  * and values of type V. Associative Arrays store key/value pairs
@@ -59,9 +61,13 @@ public class AssociativeArray<K, V> {
   public AssociativeArray<K, V> clone() {
     AssociativeArray<K, V> newAssocArray = new AssociativeArray<K, V>();
 
-    for(int i = 0; i < this.size; i++) {
-      newAssocArray.pairs[i] = this.pairs[i];
-      newAssocArray.size++;
+    for(int i = 0; i < this.pairs.length; i++) {
+      try {
+        newAssocArray.pairs[i] = new KVPair<K, V>(this.pairs[i].key, this.pairs[i].value);
+        newAssocArray.size++;
+      } catch (NullPointerException e) {
+        newAssocArray.pairs[i] = null;
+      }
     }
     return newAssocArray;
   } // clone()
@@ -75,9 +81,13 @@ public class AssociativeArray<K, V> {
     }
     String arrString = "{ ";
     for (int i = 0; i < this.size; i++) {
-      arrString = arrString + this.pairs[i].key + ": " + this.pairs[i].value + ", ";
-    }
-    arrString = arrString + "\b\b }";
+      arrString = arrString + this.pairs[i].key + ": " + this.pairs[i].value;
+      if (i == this.size - 1) {
+        arrString = arrString + " }";
+      } else {
+        arrString = arrString + ", ";
+      } // if else
+    } // for loop
     return arrString; // STUB
   } // toString()
 
@@ -90,15 +100,28 @@ public class AssociativeArray<K, V> {
    * get(key) will return value.
    */
   public void set(K key, V value) throws NullKeyException {
+    //checks to make sure key is valid
+    if(key == null) {
+      throw new NullKeyException("Invalid Key");
+    }
+
+    //keeps track of array position
+    int pos = 0;
+
+    //loops through list to find an empty slot and fill it with new value
     for(KVPair<K, V> pair : this.pairs) {
       if(pair == null) {
         pair = new KVPair<K, V>(key, value);
-        this.pairs[this.size++] = pair;
+        if(++this.size == this.pairs.length) {
+          expand();
+        }
+        this.pairs[pos] = pair;
         return;
       } else if(pair.key.equals(key)) {
         pair.value = value;
         return;
       }
+      pos++;
     }
     return;
   } // set(K,V)
@@ -111,28 +134,28 @@ public class AssociativeArray<K, V> {
    *                              appear in the associative array.
    */
   public V get(K key) throws KeyNotFoundException {
-    for(KVPair<K, V> pair : this.pairs) {
-      if (key == null) {
-        throw new KeyNotFoundException();
-      }
-      if(pair.key.equals(key)) {
-        return pair.value;
-      }
+    if(key == null) {
+      throw new KeyNotFoundException("Invalid Key");
     }
-    throw new KeyNotFoundException();
+    V val = this.pairs[find(key)].value;
+    return val;
   } // get(K)
 
   /**
    * Determine if key appears in the associative array. Should
    * return false for the null key.
+   * @throws NullKeyException 
    */
   public boolean hasKey(K key) {
-    for(KVPair<K, V> pair : this.pairs) {
-      if(pair.key.equals(key)) {
-        return true;
-      }
+    if(key == null) {
+      return false;
     }
-    return false;
+    try {
+      find(key);
+    } catch (KeyNotFoundException e) {
+      return false;
+    }
+    return true;
   } // hasKey(K)
 
   /**
@@ -141,13 +164,12 @@ public class AssociativeArray<K, V> {
    * in the associative array, does nothing.
    */
   public void remove(K key) {
-    int i = 0;
+    int i;
     if (this.size != 0) {
-      while(!(this.pairs[i].key.equals(key))) {
-        i++;
-        if(i >= this.size) {
-          return;
-        }
+      try {
+        i = find(key);
+      } catch (KeyNotFoundException e) {
+        return;
       }
       this.pairs[i] = this.pairs[this.size - 1];
       this.pairs[this.size - 1] = null;
@@ -179,12 +201,19 @@ public class AssociativeArray<K, V> {
    * If no such entry is found, throws an exception.
    */
   public int find(K key) throws KeyNotFoundException {
+    if(key == null) {
+      
+    } 
     int i = 0;
     for(KVPair<K, V> pair : this.pairs) {
-      if(pair.key.equals(key)) {
-        return i;
+      try {
+        if(pair.key.equals(key)) {
+          return i;
+        }
+        i++;
+      } catch (NullPointerException e) {
+        i++;
       }
-      i++;
     }
     throw new KeyNotFoundException();
   } // find(K)
